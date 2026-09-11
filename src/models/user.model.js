@@ -2,45 +2,47 @@ import mongoose from "mongoose";
 import validator from "validator";
 import jwt from "jsonwebtoken";
 
+const userSchema = mongoose.Schema(
+  {
+    username: {
+      type: String,
+      minLength: [3, "Username should lie between 3 to 30 characters"],
+      maxLength: [30, "Username should lie between 3 to 30 characters"],
+      trim: true,
+      required: [true, "Username is required"],
+      unique: [true, "Username must be unique"],
+    },
 
-const userSchema = mongoose.Schema({
-  username: {
-    type: String,
-    minLength: [3, "Username should lie between 3 to 30 characters"],
-    maxLength: [30, "Username should lie between 3 to 30 characters"],
-    trim: true,
-    required: [true, "Username is required"],
-    unique: [true, "Username must be unique"],
-  },
+    email: {
+      type: String,
+      required: [true, "Email is required"],
+      unique: [true, "Email must be unique"],
+      trim: true,
+      lowercase: true,
+      validate(value) {
+        if (!validator.isEmail(value)) {
+          throw new Error("Please Provide a valid EmailId");
+        }
+      },
+    },
 
-  email: {
-    type: String,
-    required: [true, "Email is required"],
-    unique: [true, "Email must be unique"],
-    trim: true,
-    lowercase: true,
-    validate(value) {
-      if (!validator.isEmail(value)) {
-        throw new Error("Please Provide a valid EmailId");
-      }
+    password: {
+      type: String,
+      required: [true, "Password is required"],
+      minLength: [6, "Password should be atleast of 6 characters length"],
+      validate(value) {
+        if (!validator.isStrongPassword(value)) {
+          throw new Error("Please Provide a Strong Password");
+        }
+      },
     },
   },
-
-  password: {
-    type: String,
-    required: [true, "Password is required"],
-    minLength: [6, "Password should be atleast of 6 characters length"],
-    validate(value) {
-      if (!validator.isStrongPassword(value)) {
-        throw new Error("Please Provide a Strong Password");
-      }
-    },
-  },
-});
+  { timeStamps: true },
+);
 
 userSchema.methods.getJWT = function () {
   const user = this;
-  const token = jwt.sign(
+  const accessToken = jwt.sign(
     {
       _id: user._id,
     },
@@ -50,7 +52,7 @@ userSchema.methods.getJWT = function () {
     },
   );
 
-  return token;
+  return accessToken;
 };
 
 export const UserModel = mongoose.model("User", userSchema);

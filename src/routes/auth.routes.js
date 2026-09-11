@@ -5,6 +5,9 @@ import { userAuth } from "../middlewares/auth.js";
 const authRouter = Router();
 
 authRouter.post("/register", authController.handleUserRegister);
-authRouter.get("/get-me", userAuth, authController.handleGetUserProfile);
+authRouter.get("/get-me", authController.handleGetUserProfile);
+//?One more end point for the refresh Token
+authRouter.get("/refresh-token", authController.handleRefreshToken);
+authRouter.get("/logout", authController.handleUserLogout);
 
 export default authRouter;
